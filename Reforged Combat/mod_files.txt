@@ -1,1 +1,3 @@
+add raw/miniboss/ashura01.pac
+add raw/miniboss/chargercommon.pac
 add mod.ini
