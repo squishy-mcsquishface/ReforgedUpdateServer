@@ -1,6 +1,7 @@
 ## Reforged Combat V2.5
 - Buffed health for all Titans
 - Tweaked Super Sonic values for gaining Cyloop on hit
+- Giganto's first beam attack is before phase 2 for better pacing
 - Added Knight boss changes
 - Added Supreme boss changes
 - Fixed not being able to use Sonic Boom against Wyvern
