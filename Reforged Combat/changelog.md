@@ -1,3 +1,6 @@
+## Messed up the update server directory WHOOPSIES
+- Files should actually be included now
+
 ## Reforged Combat V2.5
 - Buffed health for all Titans
 - Tweaked Super Sonic values for gaining Cyloop on hit
