@@ -1,8 +1,8 @@
-add boss/bosscommon.pac
-add boss/dragon01.pac
-add boss/giant01.pac
-add boss/knight01.pac
-add boss/rifle01.pac
-add character/playercommon.pac
-add miniboss/chargercommon.pac
+add raw/boss/bosscommon.pac
+add raw/boss/dragon01.pac
+add raw/boss/giant01.pac
+add raw/boss/knight01.pac
+add raw/boss/rifle01.pac
+add raw/character/playercommon.pac
+add raw/miniboss/chargercommon.pac
 add mod.ini
