@@ -1,3 +1,7 @@
+## Quick Fix Update
+- Made Knight a little bit more engaging with a faster moving shield in phase 2
+- Made Supreme less repetitive by allowing more hits before you get knocked back
+  
 ## Reforged Combat V2.5
 - Buffed health for all Titans
 - Tweaked Super Sonic values for gaining Cyloop on hit
