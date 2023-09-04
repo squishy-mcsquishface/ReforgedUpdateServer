@@ -1,5 +1,5 @@
 add raw/character/playercommon.pac
-add raw/boss/giant.pac
+add raw/boss/giant01.pac
 add raw/boss/dragon01.pac
 add raw/boss/knight01.pac
 add raw/boss/rifle01.pac
