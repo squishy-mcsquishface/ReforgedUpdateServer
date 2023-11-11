@@ -20,5 +20,6 @@ add raw/misc/mastertrial.pac
 add raw/script/script_w1r03.pac
 add raw/script/script_w2r01.pac
 add raw/text/text_skill_en.pac
+add recoded.hmm
 delete raw/boss/rifle01.pac
 add mod.ini
