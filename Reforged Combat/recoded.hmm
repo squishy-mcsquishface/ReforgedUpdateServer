@@ -1,0 +1,416 @@
+Code "Combo Table Fixes" by "datsquishyfello"
+//
+	#include "Reflection" noemit
+
+    #lib "Sonic"
+	#lib "Reflection"
+	#lib "SonicParameters"
+    #lib "Bitwise"
+	#lib "BlackboardBattle"
+    #lib "BlackboardStatus"
+
+//
+{
+	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+	
+	if (SonicParametersInfo.pData == null)
+	return;
+	
+	var pBlackboardBattle = BlackboardBattle.Get();
+
+    if (pBlackboardBattle == null)
+        return;
+		
+		if (IS_WORLD_FLAG(IsBattle))
+		{
+			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitExistTarget[0], SonicParameters.Action.AcceleCombo1);
+			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[0], SonicParameters.Action.AerialAcceleCombo1);
+			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitExistTarget[5], SonicParameters.Action.ComboFinish);
+			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[5], SonicParameters.Action.ComboFinish);					
+		}	
+		else
+		{
+			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitExistTarget[0], SonicParameters.Action.HomingAttack);
+			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[0], SonicParameters.Action.AerialHomingAttack);
+			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitExistTarget[5], SonicParameters.Action.Root);
+			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[5], SonicParameters.Action.Root);			
+		}
+}
+Code "Spin Dash While Sliding During Combat" by "datsquishyfello"
+//
+	#include "Reflection" noemit
+
+    #lib "Sonic"
+	#lib "Reflection"
+	#lib "SonicParameters"
+    #lib "Bitwise"
+	#lib "BlackboardBattle"
+	
+//
+{
+	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+	
+	if (SonicParametersInfo.pData == null)
+	return;
+	
+	var pBlackboardBattle = BlackboardBattle.Get();
+
+    if (pBlackboardBattle == null)
+        return;
+		
+		if (IS_WORLD_FLAG(IsBattle) && Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateSliding)
+		{	
+			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitExistTarget[5], SonicParameters.Action.Root);
+			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[5], SonicParameters.Action.Root);					
+		}	
+		else if (IS_WORLD_FLAG(IsBattle) && Player.State.GetCurrentStateID<Sonic.StateID>() != Sonic.StateID.StateSliding)
+		{
+			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitExistTarget[5], SonicParameters.Action.ComboFinish);
+			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[5], SonicParameters.Action.ComboFinish);	
+		}
+		else
+		{
+			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitExistTarget[5], SonicParameters.Action.Root);
+			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[5], SonicParameters.Action.Root);		
+		}
+}
+Code "Super Sonic Changes" by "datsquishyfello"
+//
+	#include "Reflection" noemit
+	
+	#lib "SonicParameters"
+	#lib "Reflection"
+	#lib "Sonic"
+	#lib "BlackboardStatus"
+
+//
+{
+	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+	
+	if (SonicParametersInfo.pData == null)
+		return;
+		
+	if (BlackboardStatus.IsSuper())
+	{
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.common.offensive.pointMax, 15);
+		RFL_SET_PARAM(SonicParametersInfo, common.cyloop.recoveryQuickCyloopEnergyByTime, 0.8f);	
+		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.afterAirBoost.transitInAir[5], SonicParameters.Action.SonicBoom);
+		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.afterAirBoost.transitExistTarget[5], SonicParameters.Action.SonicBoom);		
+		
+	}
+	else
+	{
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.common.offensive.pointMax, 25);
+		RFL_SET_PARAM(SonicParametersInfo, common.cyloop.recoveryQuickCyloopEnergyByTime, 1.2f);
+		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.afterAirBoost.transitInAir[5], SonicParameters.Action.Root);
+		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.afterAirBoost.transitExistTarget[5], SonicParameters.Action.Root);				
+	}
+	
+}
+Code "Spin Dash Vs Drop Dash Damage Tweak" by "datsquishyfello"
+//
+	#include "Reflection" noemit
+	
+	#lib "SonicParameters"
+	#lib "Reflection"	
+	#lib "Sonic"
+	#lib "BlackboardStatus"
+
+//
+{
+	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+	
+	if (SonicParametersInfo.pData == null)
+		return;
+		
+	if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateSpinBoost || Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateSpinBoostCharge)
+	{	
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.damageRate, 0.76f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.velocity.Y, 3.0f);		
+	}
+	else
+	{
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.damageRate, 0.96f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.velocity.Y, 7.000001f);		
+	}
+	
+}
+Code "Cyloop Item Drop Nerf in Battle" by "datsquishyfello"
+//
+	#include "Reflection" noemit
+
+    #lib "Sonic"
+	#lib "SonicParameters"
+	#lib "AmyParameters"
+	#lib "KnucklesParameters"
+	#lib "TailsParameters"
+    #lib "Bitwise"
+	#lib "BlackboardBattle"
+    #lib "BlackboardStatus"
+
+//
+{
+	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+	
+	if (SonicParametersInfo.pData == null)
+	return;
+	
+	var pBlackboardBattle = BlackboardBattle.Get();
+
+    if (pBlackboardBattle == null)
+        return;
+		
+		if (IS_WORLD_FLAG(IsBattle))
+		{
+			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.numRings, 3);
+			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.numRings2, 5);
+			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.num10Rings, 1);
+			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.numSkillPieces, 0);
+			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.skillPieceExp, 0);
+			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.rareDropCoolTime, 7.0f);					
+		}	
+		else
+		{
+			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.numRings, 15);
+			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.numRings2, 3);
+			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.num10Rings, 5);
+			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.numSkillPieces, 10);
+			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.skillPieceExp, 20);
+			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.rareDropCoolTime, 0.0f);	
+		}
+}
+Code "Recovery Smash Damage Nerf" by "datsquishyfello"
+//
+	#include "Reflection" noemit
+	
+	#lib "SonicParameters"
+	#lib "Sonic"
+	#lib "Reflection"
+	#lib "BlackboardStatus"
+
+//
+{
+	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+	
+	if (SonicParametersInfo.pData == null)
+		return;
+		
+	if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateSmash && Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateDamageBlowOff || Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateDamageBlowOffHeavy)
+	{	
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.smash.damageRate, 0.20f);	
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.smashLast.damageRate, 1.6f);			
+	}
+	else
+	{
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.smash.damageRate, 0.25f);	
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.smashLast.damageRate, 2.1f);		
+	}
+	
+}
+Code "Amy Stuff" by "datsquishyfello"
+//
+	#include "Reflection" noemit
+	
+    #lib "Player"
+	#lib "Reflection"
+	#lib "Amy"
+	#lib "AmyParameters"
+    #lib "Bitwise"
+	#lib "BlackboardBattle"
+    #lib "BlackboardStatus"
+
+//
+{		
+	var AmyParametersInfo = Reflection.GetDataInfo<AmyParameters.Root>("amy_common");
+	if (AmyParametersInfo.pData == null)
+		return;
+		
+    var kinematics = Player.Kinematics.Get();
+
+    if (kinematics == null)
+        return;
+
+	Player.State.Redirect<Amy.StateID>(Amy.StateID.StateCyHammer, Amy.StateID.StateAirCyHammer)
+
+	if (Player.GetPlayerType() == Player.PlayerType.Amy)
+	{
+		if (Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StateRun && Player.Input.IsPressed(Player.InputActionType.PlayerStomping))
+		{
+			Player.State.SetState<Amy.StateID>(Amy.StateID.StateHighJump);
+		}
+			if (Player.State.GetPreviousStateID<Amy.StateID>() != Amy.StateID.AmyStateStompingDown && Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StateHighJump)
+			{
+				RFL_SET_PARAM(AmyParametersInfo, forwardView.highJump.jumpForce, 16.0f);
+				RFL_SET_PARAM(AmyParametersInfo, forwardView.modePackage.speed.normal2.max, 25.0f);
+			}
+			else
+			{
+				RFL_SET_PARAM(AmyParametersInfo, forwardView.highJump.jumpForce, 23.0f);	
+				RFL_SET_PARAM(AmyParametersInfo, forwardView.modePackage.speed.normal2.max, 15.0f);				
+			}
+		//Higher Crit Rate on Charm Attack
+		if (Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.AmyStateCharmAttack || Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.AmyStateCharmAttackFollow)
+		{
+			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.common.criticalRate, 0.33f);
+			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.common.criticalDamageRate, 2.0f);					
+		}
+		else
+		{
+			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.common.criticalRate, 0.05f);
+			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.common.criticalDamageRate, 2.2f);
+		}
+		//Cyhammer Hitbox
+		if (Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StateAirCyHammer)
+		{
+			Player.Collision.SetCollisionSphere(Player.CollisionType.Damage, 3.5f);
+			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.spinDash.damageRate, 0.9f);
+			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.spinDash.velocity.Y, 0.0f);
+			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.spinDash.velocity.Z, 0.0f);
+			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.spinDash.velocityKeepTime, -1.0f);
+		}
+		else
+		{
+			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.spinDash.damageRate, 0.8f);
+			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.spinDash.velocity.Y, 5.000001f);
+			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.spinDash.velocity.Z, 20.0f);
+			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.spinDash.velocityKeepTime, 0.66f);
+		}
+		
+		if (Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StateAirCyHammer && Player.Input.IsPressed(Player.InputActionType.PlayerLeftStep) && !Player.Status.IsGrounded() || Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StateAirCyHammer && Player.Input.IsPressed(Player.InputActionType.PlayerRightStep) && !Player.Status.IsGrounded())
+		{
+			Player.State.SetState<Amy.StateID>(Amy.StateID.StateFall);
+		}
+//		if (Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.AmyStateTarotRollingFall)
+//		{
+//			kinematics->Position.Y += 0.1f;
+//		}
+	}
+}
+Code "Knux Stuff" by "datsquishyfello"
+//
+	#include "Reflection" noemit	
+
+    #lib "Reflection"
+	#lib "Player"
+	#lib "Time"
+    #lib "KnucklesParameters"
+//
+{
+    var KnucklesParametersInfo = Reflection.GetDataInfo<KnucklesParameters.Root>("knuckles_common");
+
+	if (KnucklesParametersInfo.pData == null)
+		return;
+		
+	var pBlackboardItem = BlackboardItem.Get();
+
+    if (pBlackboardItem == null)
+        return;
+	
+	int rings = pBlackboardItem->RingCount;
+			
+			
+	if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateRun)
+	{
+		RFL_SET_PARAM(KnucklesParametersInfo, common.combo.comboTable.root.transitExistTarget[4], KnucklesParameters.Action.KnucklesUppercut);
+		RFL_SET_PARAM(KnucklesParametersInfo, common.combo.comboTable.root.transitInAir[4], KnucklesParameters.Action.KnucklesUppercut);	
+		RFL_SET_PARAM(KnucklesParametersInfo, common.combo.comboTable.root.transitNotExistTarget[4], KnucklesParameters.Action.KnucklesUppercut);			
+	}	
+	else
+	{
+		RFL_SET_PARAM(KnucklesParametersInfo, common.combo.comboTable.root.transitExistTarget[4], KnucklesParameters.Action.Root);
+		RFL_SET_PARAM(KnucklesParametersInfo, common.combo.comboTable.root.transitInAir[4], KnucklesParameters.Action.Root);	
+		RFL_SET_PARAM(KnucklesParametersInfo, common.combo.comboTable.root.transitNotExistTarget[4], KnucklesParameters.Action.Root);
+	}
+	
+	if (Player.GetPlayerType() == Player.PlayerType.Knuckles)
+	{
+		//Stronger at 0 Rings
+		if (rings == 0)
+		{
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.common.offensive.pointMin, 12);	
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.common.offensive.pointMax, 28);
+		}
+		else
+		{
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.common.offensive.pointMin, 10);		
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.common.offensive.pointMax, 25);
+		}
+		
+		//CyKnuckle Spike
+		if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateCyKnucklePreFall)
+		{
+			Player.Collision.SetCollisionSphere(Player.CollisionType.Damage, 2.5f);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinDash.velocity.Y, -24.0f);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinDash.velocity.Z, 0.0f);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinDash.velocityKeepTime, 0.01f);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinDash.damageRate, 1.0f);
+		}
+		else
+		{
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinDash.velocity.Y, 5.000001f);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinDash.velocity.Z, 20.0f);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinDash.velocityKeepTime, 0.66f);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinDash.damageRate, 0.8f);
+		}
+		
+		if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateCyKnucklePreFall && Player.Input.IsPressed(Player.InputActionType.PlayerJump))
+		{
+			Player.State.SetState<Knuckles.StateID>(Knuckles.StateID.StateGliding);
+		}	
+		if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateCyKnucklePreFall && Player.Input.IsPressed(Player.InputActionType.PlayerLeftStep) && !Player.Status.IsGrounded() || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateCyKnucklePreFall && Player.Input.IsPressed(Player.InputActionType.PlayerRightStep) && !Player.Status.IsGrounded())
+		{
+			Player.State.SetState<Knuckles.StateID>(Knuckles.StateID.StateFall);
+		}		
+	}		
+}
+Code "Tails Stuff" by "datsquishyfello"
+//
+	#include "Reflection" noemit
+
+    #lib "Player"
+	#lib "Reflection"
+	#lib "Tails"
+	#lib "TailsParameters"
+    #lib "Bitwise"
+	#lib "BlackboardBattle"
+
+//
+{
+	var TailsParametersInfo = Reflection.GetDataInfo<TailsParameters.Root>("tails_common");
+	if (TailsParametersInfo.pData == null)
+		return;
+
+	if (Player.GetPlayerType() == Player.PlayerType.Tails)
+	{
+		if (Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateRun && Player.Input.IsPressed(Player.InputActionType.PlayerStomping))
+		{
+			Player.State.SetState<Tails.StateID>(Tails.StateID.TailsStateStompingDown);
+		}
+		
+		if (Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateSpinBoostCharge)
+		{
+			RFL_SET_PARAM(TailsParametersInfo, common.commonPackage.attack.spinDash.damageRate, 1.0f);
+			RFL_SET_PARAM(TailsParametersInfo, common.commonPackage.attack.spinDash.velocity.Y, 12.000001f);
+			RFL_SET_PARAM(TailsParametersInfo, common.commonPackage.attack.spinDash.velocity.Z, 8.0f);
+			RFL_SET_PARAM(TailsParametersInfo, common.commonPackage.attack.spinDash.velocityKeepTime, 0.88f);
+		}
+		else
+		{
+			RFL_SET_PARAM(TailsParametersInfo, common.commonPackage.attack.spinDash.velocity.Y, 5.000001f);
+			RFL_SET_PARAM(TailsParametersInfo, common.commonPackage.attack.spinDash.velocity.Z, 20.0f);
+			RFL_SET_PARAM(TailsParametersInfo, common.commonPackage.attack.spinDash.velocityKeepTime, 0.66f);
+			RFL_SET_PARAM(TailsParametersInfo, common.commonPackage.attack.spinDash.damageRate, 0.8f);			
+		}
+		
+		//Homing Thwack
+		if (Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateSpinBoost && Player.Input.IsPressed(Player.InputActionType.PlayerAttack))
+		{
+			Player.State.SetState<Tails.StateID>(Tails.StateID.StateHomingAttack);		
+		}
+				
+		if (Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateAvoid && Player.Input.IsPressed(Player.InputActionType.PlayerAttack) || Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateHomingFinished && Player.Input.IsPressed(Player.InputActionType.PlayerAttack))
+		{
+			Player.State.SetState<Tails.StateID>(Tails.StateID.StateFall);	
+		}
+	}
+}
