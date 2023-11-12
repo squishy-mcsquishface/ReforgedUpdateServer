@@ -1,3 +1,7 @@
+## Reforged Combat V3.1
+- Platforming Soldiers outside of Kronos now die in 1 hit.
+- Pressing X while spindashing as Tails' without targeting an enemy will no longer cancel spindashing.
+
 ## Reforged Combat V3
 - Amy, Knuckles and Tails all have reworked combat, refer to the mod page on GameBanana for details.
 - Fixed punching springs and other object when intending to homing attack.
