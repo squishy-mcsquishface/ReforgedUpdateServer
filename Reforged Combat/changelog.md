@@ -1,3 +1,20 @@
+## Reforged Combat V3.33
+- Updated for v1.41
+- Added a completely overhauled Tiger Trial, now using high speed Bangers and Snipers.
+- Revamped Tower guardians to be harder and require more thoughtful positioning in lategame.
+- Added damage staling to Wild Rush to discourage spamming.
+- Combo Finishers can now only be used when locked onto an enemy in combat to make spin dashing easier.
+- Stomping manually deals less damage than using the Stomp skill.
+- Rebalanced Phantom Rush gain for several attacks.
+- Rebalanced Cyloop gauge recharging for other characters.
+- Amy's Cyloop gauge charges faster.
+- CyHammer and CyKnuckle can be cancelled mid air in more ways, and deal more damage when used on the ground.
+- Increase CyKnuckle fall speed.
+- As Knuckles, pressing B after stomping on an enemy has Knuckles perform a quick charge attack.
+- Drill Attack charges faster while on the ground.
+- Fixed charged wrenches cancelling Tails' homing attack.
+- Fixed scripting for unlocking Quick Cyloop after rescuing Amy sometimes unlocking Grand Slam.
+
 ## Reforged Combat V3.1
 - Platforming Soldiers outside of Kronos now die in 1 hit.
 - Pressing X while spindashing as Tails' without targeting an enemy will no longer cancel spindashing.
