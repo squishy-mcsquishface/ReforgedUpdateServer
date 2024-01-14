@@ -24,17 +24,13 @@ Code "Combo Table Fixes" by "datsquishyfello"
 		if (IS_WORLD_FLAG(IsBattle))
 		{
 			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitExistTarget[0], SonicParameters.Action.AcceleCombo1);
-			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[0], SonicParameters.Action.AerialAcceleCombo1);
-			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitExistTarget[5], SonicParameters.Action.ComboFinish);
-			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[5], SonicParameters.Action.ComboFinish);					
+			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[0], SonicParameters.Action.AerialAcceleCombo1);				
 		}	
 		else
 		{
 			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitExistTarget[0], SonicParameters.Action.HomingAttack);
-			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[0], SonicParameters.Action.AerialHomingAttack);
-			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitExistTarget[5], SonicParameters.Action.Root);
-			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[5], SonicParameters.Action.Root);			
-		}
+			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[0], SonicParameters.Action.AerialHomingAttack);	
+		}		
 }
 Code "Spin Dash While Sliding During Combat" by "datsquishyfello"
 //
@@ -63,7 +59,7 @@ Code "Spin Dash While Sliding During Combat" by "datsquishyfello"
 			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitExistTarget[5], SonicParameters.Action.Root);
 			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[5], SonicParameters.Action.Root);					
 		}	
-		else if (IS_WORLD_FLAG(IsBattle) && Player.State.GetCurrentStateID<Sonic.StateID>() != Sonic.StateID.StateSliding)
+		else if (IS_WORLD_FLAG(IsBattle) && Player.Status.IsLockOnCursorVisible() && Player.State.GetCurrentStateID<Sonic.StateID>() != Sonic.StateID.StateSliding)
 		{
 			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitExistTarget[5], SonicParameters.Action.ComboFinish);
 			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[5], SonicParameters.Action.ComboFinish);	
@@ -105,7 +101,6 @@ Code "Super Sonic Changes" by "datsquishyfello"
 		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.afterAirBoost.transitInAir[5], SonicParameters.Action.Root);
 		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.afterAirBoost.transitExistTarget[5], SonicParameters.Action.Root);				
 	}
-	
 }
 Code "Spin Dash Vs Drop Dash Damage Tweak" by "datsquishyfello"
 //
@@ -135,6 +130,31 @@ Code "Spin Dash Vs Drop Dash Damage Tweak" by "datsquishyfello"
 	}
 	
 }
+Code "Stomp Skill Vs Manual Stomp Damage Tweak" by "datsquishyfello"
+//
+	#include "Reflection" noemit
+	
+	#lib "SonicParameters"
+	#lib "Reflection"	
+	#lib "Sonic"
+	#lib "BlackboardStatus"
+	
+//
+{
+	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+	
+	if (SonicParametersInfo.pData == null)
+		return;
+		
+	if (Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateStomping)
+	{	
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.stomping.damageRate, 0.7f);
+	}
+	else
+	{
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.stomping.damageRate, 0.6f);
+	}
+}
 Code "Cyloop Item Drop Nerf in Battle" by "datsquishyfello"
 //
 	#include "Reflection" noemit
@@ -151,32 +171,62 @@ Code "Cyloop Item Drop Nerf in Battle" by "datsquishyfello"
 //
 {
 	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+	var AmyParametersInfo = Reflection.GetDataInfo<AmyParameters.Root>("amy_common");
+	var KnucklesParametersInfo = Reflection.GetDataInfo<KnucklesParameters.Root>("knuckles_common");
+	var TailsParametersInfo = Reflection.GetDataInfo<TailsParameters.Root>("tails_common");
 	
-	if (SonicParametersInfo.pData == null)
-	return;
+	if (SonicParametersInfo.pData == null && AmyParametersInfo.pData == null && KnucklesParametersInfo.pData == null && TailsParametersInfo.pData == null)
+		return;
 	
 	var pBlackboardBattle = BlackboardBattle.Get();
-
-    if (pBlackboardBattle == null)
-        return;
+	if (pBlackboardBattle == null)
+		return;
 		
 		if (IS_WORLD_FLAG(IsBattle))
 		{
 			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.numRings, 3);
+			RFL_SET_PARAM(AmyParametersInfo, common.cyloop.dropItem.numRings, 3);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.cyloop.dropItem.numRings, 3);
+			RFL_SET_PARAM(TailsParametersInfo, common.cyloop.dropItem.numRings, 3);
 			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.numRings2, 5);
+			RFL_SET_PARAM(AmyParametersInfo, common.cyloop.dropItem.numRings2, 5);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.cyloop.dropItem.numRings2, 5);
+			RFL_SET_PARAM(TailsParametersInfo, common.cyloop.dropItem.numRings2, 5);
 			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.num10Rings, 1);
+			RFL_SET_PARAM(AmyParametersInfo, common.cyloop.dropItem.num10Rings, 1);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.cyloop.dropItem.num10Rings, 1);
+			RFL_SET_PARAM(TailsParametersInfo, common.cyloop.dropItem.num10Rings, 1);
 			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.numSkillPieces, 0);
-			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.skillPieceExp, 0);
-			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.rareDropCoolTime, 7.0f);					
+			RFL_SET_PARAM(AmyParametersInfo, common.cyloop.dropItem.numSkillPieces, 0);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.cyloop.dropItem.numSkillPieces, 0);
+			RFL_SET_PARAM(TailsParametersInfo, common.cyloop.dropItem.numSkillPieces, 0);
+			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.rareDropCoolTime, 7.0f);	
+			RFL_SET_PARAM(AmyParametersInfo, common.cyloop.dropItem.rareDropCoolTime, 7.0f);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.cyloop.dropItem.rareDropCoolTime, 7.0f);
+			RFL_SET_PARAM(TailsParametersInfo, common.cyloop.dropItem.rareDropCoolTime, 7.0f);				
 		}	
 		else
 		{
 			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.numRings, 15);
+			RFL_SET_PARAM(AmyParametersInfo, common.cyloop.dropItem.numRings, 15);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.cyloop.dropItem.numRings, 15);
+			RFL_SET_PARAM(TailsParametersInfo, common.cyloop.dropItem.numRings, 15);
 			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.numRings2, 3);
+			RFL_SET_PARAM(AmyParametersInfo, common.cyloop.dropItem.numRings2, 3);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.cyloop.dropItem.numRings2, 3);
+			RFL_SET_PARAM(TailsParametersInfo, common.cyloop.dropItem.numRings2, 3);
 			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.num10Rings, 5);
+			RFL_SET_PARAM(AmyParametersInfo, common.cyloop.dropItem.num10Rings, 5);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.cyloop.dropItem.num10Rings, 5);
+			RFL_SET_PARAM(TailsParametersInfo, common.cyloop.dropItem.num10Rings, 5);
 			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.numSkillPieces, 10);
-			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.skillPieceExp, 20);
-			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.rareDropCoolTime, 0.0f);	
+			RFL_SET_PARAM(AmyParametersInfo, common.cyloop.dropItem.numSkillPieces, 10);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.cyloop.dropItem.numSkillPieces, 10);
+			RFL_SET_PARAM(TailsParametersInfo, common.cyloop.dropItem.numSkillPieces, 10);
+			RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.rareDropCoolTime, 0.0f);
+			RFL_SET_PARAM(AmyParametersInfo, common.cyloop.dropItem.rareDropCoolTime, 0.0f);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.cyloop.dropItem.rareDropCoolTime, 0.0f);
+			RFL_SET_PARAM(TailsParametersInfo, common.cyloop.dropItem.rareDropCoolTime, 0.0f);	
 		}
 }
 Code "Recovery Smash Damage Nerf" by "datsquishyfello"
@@ -205,7 +255,85 @@ Code "Recovery Smash Damage Nerf" by "datsquishyfello"
 		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.smash.damageRate, 0.25f);	
 		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.smashLast.damageRate, 2.1f);		
 	}
+}
+Code "Wild Rush Spam Prevention" by "datsquishyfello"
+//
+	#include "Reflection" noemit
 	
+	#lib "SonicParameters"
+	#lib "Sonic"
+	#lib "Reflection"
+	#lib "Time"
+	
+	static float timer = 0.0f;
+	static float delayTimer = 2.2f;
+	static bool isDecay = false;
+
+//
+{
+	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+	
+	if (SonicParametersInfo.pData == null)
+		return;
+		
+	if (Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateCrasher)
+	{	
+		isDecay = true;
+		timer = 0.0f;
+	}
+	if (isDecay)
+	{
+		timer += Time.GetDeltaTime();
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.damageRate, 0.4f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.damageRateSS, 8.0f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addComboValue, 4.0f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addComboValueAccele, 4.0f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addComboValueSS, 4.1f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addComboValueAcceleSS, 5.5f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergy, 3.0f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergyAccele, 3.0f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergySS, 3.0f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergyAcceleSS, 3.2f);
+		
+		if (timer >= delayTimer)
+		{
+			isDecay = false;
+		}
+	}
+	
+	if (!isDecay)
+	{
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.damageRate, 0.99f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.damageRateSS, 20.0f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addComboValue, 12.0f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addComboValueAccele, 12.0f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addComboValueSS, 12.2f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addComboValueAcceleSS, 15.0f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergy, 9.0f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergyAccele, 9.0f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergySS, 6.0f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergyAcceleSS, 7.2f);
+		timer = 0.0f;
+	}
+}
+Code "Less Crappy Bounce Jump" by "datsquishyfello"
+//
+	#include "Reflection" noemit
+	
+	#lib "Sonic"
+	#lib "Reflection"
+
+//
+{
+	if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateBounceJump && Player.Status.IsLockOnCursorVisible() && Player.Input.IsPressed(Player.InputActionType.PlayerAttack))
+	{	
+		Player.State.SetState<Sonic.StateID>(Sonic.StateID.StateHomingAttack);
+	}
+	
+	if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateBounceJump && Player.Input.IsPressed(Player.InputActionType.PlayerLeftStep) || Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateBounceJump && Player.Input.IsPressed(Player.InputActionType.PlayerRightStep))
+	{	
+		Player.State.SetState<Sonic.StateID>(Sonic.StateID.StateFall);
+	}
 }
 Code "Amy Stuff" by "datsquishyfello"
 //
@@ -241,29 +369,26 @@ Code "Amy Stuff" by "datsquishyfello"
 			if (Player.State.GetPreviousStateID<Amy.StateID>() != Amy.StateID.AmyStateStompingDown && Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StateHighJump)
 			{
 				RFL_SET_PARAM(AmyParametersInfo, forwardView.highJump.jumpForce, 16.0f);
-				RFL_SET_PARAM(AmyParametersInfo, forwardView.modePackage.speed.normal2.max, 25.0f);
 			}
 			else
 			{
 				RFL_SET_PARAM(AmyParametersInfo, forwardView.highJump.jumpForce, 23.0f);	
-				RFL_SET_PARAM(AmyParametersInfo, forwardView.modePackage.speed.normal2.max, 15.0f);				
 			}
+
 		//Higher Crit Rate on Charm Attack
 		if (Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.AmyStateCharmAttack || Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.AmyStateCharmAttackFollow)
 		{
 			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.common.criticalRate, 0.33f);
-			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.common.criticalDamageRate, 2.0f);					
 		}
 		else
 		{
 			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.common.criticalRate, 0.05f);
-			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.common.criticalDamageRate, 2.2f);
 		}
 		//Cyhammer Hitbox
 		if (Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StateAirCyHammer)
 		{
 			Player.Collision.SetCollisionSphere(Player.CollisionType.Damage, 3.5f);
-			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.spinDash.damageRate, 0.9f);
+			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.spinDash.damageRate, 1.2f);
 			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.spinDash.velocity.Y, 0.0f);
 			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.spinDash.velocity.Z, 0.0f);
 			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.spinDash.velocityKeepTime, -1.0f);
@@ -280,10 +405,25 @@ Code "Amy Stuff" by "datsquishyfello"
 		{
 			Player.State.SetState<Amy.StateID>(Amy.StateID.StateFall);
 		}
-//		if (Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.AmyStateTarotRollingFall)
-//		{
-//			kinematics->Position.Y += 0.1f;
-//		}
+		
+		if (Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StateAirCyHammer && Player.State.GetPreviousStateID<Amy.StateID>() != Amy.StateID.StateAirBoost && Player.Input.IsPressed(Player.InputActionType.PlayerBoost) && !Player.Status.IsGrounded())
+		{
+			Player.State.SetState<Amy.StateID>(Amy.StateID.StateAirBoost);
+		}
+		
+		if (Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StateAirCyHammer && Player.Input.IsPressed(Player.InputActionType.PlayerStomping) && !Player.Status.IsGrounded())
+		{
+			Player.State.SetState<Amy.StateID>(Amy.StateID.AmyStateStompingDown);
+		}
+		//Cyhammer Cyloop Buff on Grounded
+		if (Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StateCyHammer)
+		{
+			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.cyloopQuick.damageRate, 1.0f);
+		}
+		else
+		{
+			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.cyloopQuick.damageRate, 0.5f);
+		}
 	}
 }
 Code "Knux Stuff" by "datsquishyfello"
@@ -291,9 +431,13 @@ Code "Knux Stuff" by "datsquishyfello"
 	#include "Reflection" noemit	
 
     #lib "Reflection"
+	#lib BlackboardItem
 	#lib "Player"
 	#lib "Time"
     #lib "KnucklesParameters"
+	
+	static float delayTimer = 0.3f;
+    static float attackDelay = 0.0f;
 //
 {
     var KnucklesParametersInfo = Reflection.GetDataInfo<KnucklesParameters.Root>("knuckles_common");
@@ -309,7 +453,7 @@ Code "Knux Stuff" by "datsquishyfello"
 	int rings = pBlackboardItem->RingCount;
 			
 			
-	if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateRun)
+	if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateRun || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.KnucklesStateDrillBoost)
 	{
 		RFL_SET_PARAM(KnucklesParametersInfo, common.combo.comboTable.root.transitExistTarget[4], KnucklesParameters.Action.KnucklesUppercut);
 		RFL_SET_PARAM(KnucklesParametersInfo, common.combo.comboTable.root.transitInAir[4], KnucklesParameters.Action.KnucklesUppercut);	
@@ -336,11 +480,27 @@ Code "Knux Stuff" by "datsquishyfello"
 			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.common.offensive.pointMax, 25);
 		}
 		
+		//Faster Drill Charge on Ground
+		if (Player.Status.IsGrounded())
+		{
+			RFL_SET_PARAM(KnucklesParametersInfo, forwardView.maximumHeatKnuckle.lockonLevelUpSpanTime[0], 0.13f);
+			RFL_SET_PARAM(KnucklesParametersInfo, forwardView.maximumHeatKnuckle.lockonLevelUpSpanTime[1], 0.12f);
+			RFL_SET_PARAM(KnucklesParametersInfo, forwardView.maximumHeatKnuckle.lockonLevelUpSpanTime[2], 0.11f);
+			RFL_SET_PARAM(KnucklesParametersInfo, forwardView.maximumHeatKnuckle.lockonLevelUpSpanTime[3], 0.2f);
+		}
+		else
+		{
+			RFL_SET_PARAM(KnucklesParametersInfo, forwardView.maximumHeatKnuckle.lockonLevelUpSpanTime[0], 0.15f);
+			RFL_SET_PARAM(KnucklesParametersInfo, forwardView.maximumHeatKnuckle.lockonLevelUpSpanTime[1], 0.17f);
+			RFL_SET_PARAM(KnucklesParametersInfo, forwardView.maximumHeatKnuckle.lockonLevelUpSpanTime[2], 0.17f);
+			RFL_SET_PARAM(KnucklesParametersInfo, forwardView.maximumHeatKnuckle.lockonLevelUpSpanTime[3], 0.3f);
+		}
+		
 		//CyKnuckle Spike
 		if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateCyKnucklePreFall)
 		{
 			Player.Collision.SetCollisionSphere(Player.CollisionType.Damage, 2.5f);
-			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinDash.velocity.Y, -24.0f);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinDash.velocity.Y, -29.5f);
 			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinDash.velocity.Z, 0.0f);
 			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinDash.velocityKeepTime, 0.01f);
 			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinDash.damageRate, 1.0f);
@@ -360,7 +520,51 @@ Code "Knux Stuff" by "datsquishyfello"
 		if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateCyKnucklePreFall && Player.Input.IsPressed(Player.InputActionType.PlayerLeftStep) && !Player.Status.IsGrounded() || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateCyKnucklePreFall && Player.Input.IsPressed(Player.InputActionType.PlayerRightStep) && !Player.Status.IsGrounded())
 		{
 			Player.State.SetState<Knuckles.StateID>(Knuckles.StateID.StateFall);
-		}		
+		}
+		
+		if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateCyKnucklePreFall && Player.State.GetPreviousStateID<Knuckles.StateID>() != Knuckles.StateID.StateAirBoost && Player.Input.IsPressed(Player.InputActionType.PlayerBoost) && !Player.Status.IsGrounded())
+		{
+			Player.State.SetState<Knuckles.StateID>(Knuckles.StateID.StateAirBoost);
+		}
+		
+		if (Player.State.GetPreviousStateID<Knuckles.StateID>() != Knuckles.StateID.StateCyKnucklePreFall)
+		{
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.cyloopQuick.damageRate, 1.0f);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.cyloopAerial.damageRate, 1.0f);
+
+		}
+		else
+		{
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.cyloopQuick.damageRate, 0.5f);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.cyloopAerial.damageRate, 0.5f);
+		}	
+		
+		//Blitz Knuckle
+		if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.KnucklesStateStompingBounce)
+		{
+			attackDelay += Time.GetDeltaTime();
+		
+			if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.KnucklesStateStompingBounce && Player.Input.IsPressed(Player.InputActionType.PlayerStomping) && attackDelay >= delayTimer && Player.Status.IsLockOnCursorVisible())
+			{
+				Player.State.SetState<Knuckles.StateID>(Knuckles.StateID.StateMaximumHeatKnuckle);
+			}
+		}
+		else
+		{
+			attackDelay = 0.0f;
+		}
+	
+		//Glide Stuff
+		if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateGliding)
+		{
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinAttack.velocityKeepTime, -1.0f);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinAttack.damageRate, 0.5f);
+		}
+		else
+		{
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinAttack.velocityKeepTime, 0.0f);
+			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinAttack.damageRate, 0.1f);
+		}
 	}		
 }
 Code "Tails Stuff" by "datsquishyfello"
@@ -412,358 +616,10 @@ Code "Tails Stuff" by "datsquishyfello"
 		{
 			Player.State.SetState<Tails.StateID>(Tails.StateID.StateFall);	
 		}
+		
+		if (Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateBounceJump && Player.Status.IsLockOnCursorVisible() && Player.State.GetPreviousStateID<Tails.StateID>() == Tails.StateID.StateHomingAttack)
+		{
+			Player.State.SetState<Tails.StateID>(Tails.StateID.StateHomingAttack);		
+		}
 	}
-}
-Code "Fixed Platforming Soldiers" by "DatSquishyFello"
-//
-	#include "Reflection" noemit
-
-	#lib "Reflection"
-	#lib "EnemyJellymanConfig"
-
-    #import "Services"
-	
-//
-
-{
-	var EnemyJellymanConfigInfo = Reflection.GetDataInfo<EnemyJellymanConfig.Root>("enm_jellyman");
-
-	if (EnemyJellymanConfigInfo.pData == null)
-		return;
-	
-	if (LevelInfo.GetCurrentStageID() == "w1r03")
-	{
-		RFL_SET_PARAM(EnemyJellymanConfigInfo, levelParams[0].common.maxHealthPoint, 72);	
-	}
-	else
-	{
-		RFL_SET_PARAM(EnemyJellymanConfigInfo, levelParams[0].common.maxHealthPoint, 2);				
-	}
-}
-
-
-
-
-
-Library "EnemyJellymanConfig"
-{
-    #load "System.Numerics.dll"
-
-    using System.Numerics;
-    using System.Runtime.InteropServices;
-
-    [StructLayout(LayoutKind.Explicit, Size = 0x10)]
-    public struct Movement
-    {
-        [FieldOffset(0x00)] public float rotateSpeedMin;
-        [FieldOffset(0x04)] public float rotateSpeedMax;
-        [FieldOffset(0x08)] public float rotateSpeedMaxSpeedMin;
-        [FieldOffset(0x0C)] public float rotateSpeedMinSpeedMax;
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size = 0x08)]
-    public struct Eyesight
-    {
-        [FieldOffset(0x00)] public float distance;
-        [FieldOffset(0x04)] public float angle;
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size = 0x0C)]
-    public struct Fight
-    {
-        [FieldOffset(0x00)] public float attackRange;
-        [FieldOffset(0x04)] public float attackAngle;
-        [FieldOffset(0x08)] public float attackSpeed;
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size = 0x28)]
-    public struct EnemyJellymanModeConfig
-    {
-        [FieldOffset(0x00)] public Movement movement;
-        [FieldOffset(0x10)] public Eyesight eyesight;
-        [FieldOffset(0x18)] public Fight fight;
-        [FieldOffset(0x24)] public float transformRate;
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size = 0x3C)]
-    public struct JellymanHumanCommonConfig
-    {
-        [FieldOffset(0x00)] public EnemyJellymanModeConfig common;
-        [FieldOffset(0x28)] public unsafe fixed float actionDistance[5];
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size = 0x1C)]
-    public struct RingParameter
-    {
-        [FieldOffset(0x00)] public float suckedTime;
-        [FieldOffset(0x04)] public float launchAngle;
-        [FieldOffset(0x08)] public float launchMaxSpeed;
-        [FieldOffset(0x0C)] public float launchMinSpeed;
-        [FieldOffset(0x10)] public float randomRangeMin;
-        [FieldOffset(0x14)] public float randomRangeMax;
-        [FieldOffset(0x18)] public float lifeTime;
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size = 8)]
-    public struct UnmanagedString
-    {
-        [FieldOffset(0)] public long pValue;
-
-        public string Value
-        {
-            get
-            {
-                if (pValue == 0)
-                    return string.Empty;
-
-                return Marshal.PtrToStringAnsi((nint)pValue);
-            }
-
-            set => pValue = (long)Marshal.StringToHGlobalAnsi(value);
-        }
-
-        public UnmanagedString(string in_value)
-        {
-            Value = in_value;
-        }
-
-        public static implicit operator UnmanagedString(string in_value)
-        {
-            return new UnmanagedString(in_value);
-        }
-
-        public static bool operator ==(UnmanagedString in_left, string in_right)
-        {
-            return in_left.Value == in_right;
-        }
-
-        public static bool operator !=(UnmanagedString in_left, string in_right)
-        {
-            return !(in_left == in_right);
-        }
-
-        public override bool Equals(object in_obj)
-        {
-            if (in_obj is string str)
-                return Value == str;
-
-            return base.Equals(in_obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return Value.GetHashCode();
-        }
-
-        public override string ToString()
-        {
-            return Value;
-        }
-    }
-
-    public enum VolumeShape : sbyte
-    {
-        SPHERE = 0,
-        BOX = 1,
-        CYLINDER = 2,
-        CAPSULE = 3,
-        NUM = 4
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size = 0x30)]
-    public struct VolumeInfo
-    {
-        [FieldOffset(0x00)] public Vector3 volumeSize;
-        [FieldOffset(0x10)] public Vector3 volumeOffset;
-        [FieldOffset(0x20)] public Vector3 volumeRotation;
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size = 0xB0)]
-    public struct MappingPairInfo
-    {
-        [FieldOffset(0x00)] public UnmanagedString tagName;
-        [FieldOffset(0x10)] public sbyte pieceNum;
-        [FieldOffset(0x14)] public float pieceFuncFactor;
-        [FieldOffset(0x18)] public VolumeShape volumeShape;
-        [FieldOffset(0x20)] public UnmanagedString humanNodeName;
-        [FieldOffset(0x30)] public VolumeInfo humanVolume;
-        [FieldOffset(0x60)] public UnmanagedString eggNodeName;
-        [FieldOffset(0x70)] public VolumeInfo eggVolume;
-        [FieldOffset(0xA0)] public bool effectActive;
-        [FieldOffset(0xA1)] public bool debugDraw;
-        [FieldOffset(0xA2)] public bool debugDrawVolumeAxis;
-        [FieldOffset(0xA3)] public bool debugDrawAxis;
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size = 0x1670)]
-    public struct EnemyCommonConfig
-    {
-        [FieldOffset(0x00)] public JellymanHumanCommonConfig human;
-        [FieldOffset(0x3C)] public RingParameter ringParam;
-        [FieldOffset(0x58)] public int codeDropNumMin;
-        [FieldOffset(0x5C)] public int codeDropNumMax;
-        [FieldOffset(0x60)] public int codeXDropNumMin;
-        [FieldOffset(0x64)] public int codeXDropNumMax;
-        [FieldOffset(0x70)] public unsafe fixed byte /* MappingPairInfo[32] */ _mappingPairInfo[5632];
-
-        public unsafe MappingPairInfo* mappingPairInfo
-        {
-            get
-            {
-                fixed (byte* p_mappingPairInfo = _mappingPairInfo)
-                    return (MappingPairInfo*)p_mappingPairInfo;
-            }
-        }
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size = 0x3C)]
-    public struct JellymanCommonLevelConfig
-    {
-        [FieldOffset(0x00)] public int maxHealthPoint;
-        [FieldOffset(0x04)] public unsafe fixed float maxStunPoint[3];
-        [FieldOffset(0x10)] public float stunDecreaseStartTime;
-        [FieldOffset(0x14)] public float stunDecreaseSpeed;
-        [FieldOffset(0x18)] public unsafe fixed float maxStaggerPoint[3];
-        [FieldOffset(0x24)] public float staggerDecreaseStartTime;
-        [FieldOffset(0x28)] public float staggerDecreaseSpeed;
-        [FieldOffset(0x2C)] public float stunTime;
-        [FieldOffset(0x30)] public float attackRate;
-        [FieldOffset(0x34)] public float attackMotionSpeed;
-        [FieldOffset(0x38)] public ushort expItemNum;
-        [FieldOffset(0x3A)] public ushort exp;
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size = 0x10)]
-    public struct JellymanHumanLevelConfig
-    {
-        [FieldOffset(0x00)] public float wallTime;
-        [FieldOffset(0x04)] public int wallLife;
-        [FieldOffset(0x08)] public float guardTime;
-        [FieldOffset(0x0C)] public float guardCoolTime;
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size = 0x50)]
-    public struct EnemyLevelConfig
-    {
-        [FieldOffset(0x00)] public int level;
-        [FieldOffset(0x04)] public JellymanCommonLevelConfig common;
-        [FieldOffset(0x40)] public JellymanHumanLevelConfig human;
-    }
-
-    public enum SuperArmorType : sbyte
-    {
-        None = 0,
-        Attack = 1,
-        Always = 2
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size = 0x08)]
-    public struct JellymanCommonActionConfig
-    {
-        [FieldOffset(0x00)] public SuperArmorType superArmor;
-        [FieldOffset(0x01)] public bool isTransform;
-        [FieldOffset(0x04)] public float downTime;
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size = 0x14)]
-    public struct JellymanHumanActionRate
-    {
-        [FieldOffset(0x00)] public unsafe fixed float actionRate[5];
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size = 0xA0)]
-    public struct JellymanHumanActionConfig
-    {
-        [FieldOffset(0x00)] public unsafe fixed byte /* JellymanHumanActionRate[4] */ _rateTable[80];
-
-        public unsafe JellymanHumanActionRate* rateTable
-        {
-            get
-            {
-                fixed (byte* p_rateTable = _rateTable)
-                    return (JellymanHumanActionRate*)p_rateTable;
-            }
-        }
-
-        [FieldOffset(0x50)] public unsafe fixed float coolTime[5];
-        [FieldOffset(0x64)] public float attackCoolTime;
-        [FieldOffset(0x68)] public float nearRange;
-        [FieldOffset(0x6C)] public int nearRateId;
-        [FieldOffset(0x70)] public int farRateId;
-        [FieldOffset(0x74)] public bool isCounterGuard;
-        [FieldOffset(0x75)] public bool isCounterWall;
-        [FieldOffset(0x76)] public bool isSpikeWall;
-        [FieldOffset(0x78)] public int waveNum;
-        [FieldOffset(0x7C)] public float waveUpTime;
-        [FieldOffset(0x80)] public float waveLifeTime;
-        [FieldOffset(0x84)] public float waveDownTime;
-        [FieldOffset(0x88)] public float waveRadius;
-        [FieldOffset(0x8C)] public float waveAddRadius;
-        [FieldOffset(0x90)] public float waveSpawnTime;
-        [FieldOffset(0x94)] public float waveKeepRadius;
-        [FieldOffset(0x98)] public float waveHeight;
-        [FieldOffset(0x9C)] public int rushNum;
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size = 0xAC)]
-    public struct EnemyLevelBandConfig
-    {
-        [FieldOffset(0x00)] public int level;
-        [FieldOffset(0x04)] public JellymanCommonActionConfig common;
-        [FieldOffset(0x0C)] public JellymanHumanActionConfig human;
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size = 0x20)]
-    public struct EnemySquadAvarageLevelConfig
-    {
-        [FieldOffset(0x00)] public int level;
-        [FieldOffset(0x04)] public int maxActionCount;
-        [FieldOffset(0x08)] public float spAttackWaitTime;
-        [FieldOffset(0x0C)] public unsafe fixed int humanMaxActionCount[5];
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size = 0xA0)]
-    public struct EnemySquadConfig
-    {
-        [FieldOffset(0x00)] public unsafe fixed byte /* EnemySquadAvarageLevelConfig[5] */ _averageLevelConfig[160];
-
-        public unsafe EnemySquadAvarageLevelConfig* averageLevelConfig
-        {
-            get
-            {
-                fixed (byte* p_averageLevelConfig = _averageLevelConfig)
-                    return (EnemySquadAvarageLevelConfig*)p_averageLevelConfig;
-            }
-        }
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size = 0x1CF0)]
-    public struct Root
-    {
-        [FieldOffset(0x00)] public EnemyCommonConfig commonParams;
-        [FieldOffset(0x1670)] public unsafe fixed byte /* EnemyLevelConfig[8] */ _levelParams[640];
-
-        public unsafe EnemyLevelConfig* levelParams
-        {
-            get
-            {
-                fixed (byte* p_levelParams = _levelParams)
-                    return (EnemyLevelConfig*)p_levelParams;
-            }
-        }
-
-        [FieldOffset(0x18F0)] public unsafe fixed byte /* EnemyLevelBandConfig[5] */ _levelBands[860];
-
-        public unsafe EnemyLevelBandConfig* levelBands
-        {
-            get
-            {
-                fixed (byte* p_levelBands = _levelBands)
-                    return (EnemyLevelBandConfig*)p_levelBands;
-            }
-        }
-
-        [FieldOffset(0x1C4C)] public EnemySquadConfig squadParams;
-    }
-
 }
