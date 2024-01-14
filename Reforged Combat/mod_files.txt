@@ -1,2 +1,12 @@
-add recoded.hmm
+add raw/character/playercommon.pac
+add raw/enemy/bubble01.pac
+add raw/enemy/defender01.pac
+add raw/gedit/w5t04_gedit.pac
+add raw/miniboss/bladecommon.pac
+add raw/miniboss/darumacommon.pac
+add raw/misc/mastertrial.pac
+add raw/script/script_w1r03.pac
+add raw/script/script_w2r01.pac
+add jellyman.hmm
 add mod.ini
+add recoded.hmm
