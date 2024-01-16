@@ -318,7 +318,7 @@ Library "EnemyJellymanConfig"
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 0x1CF0)]
-    public struct EnemyJellymanConfig
+    public struct Root
     {
         [FieldOffset(0x00)] public EnemyCommonConfig commonParams;
         [FieldOffset(0x1670)] public unsafe fixed byte /* EnemyLevelConfig[8] */ _levelParams[640];
