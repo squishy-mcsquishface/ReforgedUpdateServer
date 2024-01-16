@@ -1,3 +1,6 @@
+## Reforged Combat V3.333
+- Fixed the game potentially not launching due to code errors.
+
 ## Reforged Combat V3.33
 - Updated for v1.41
 - Added a completely overhauled Tiger Trial, now using high speed Bangers and Snipers.
