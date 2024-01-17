@@ -8,5 +8,5 @@ add raw/misc/mastertrial.pac
 add raw/script/script_w1r03.pac
 add raw/script/script_w2r01.pac
 add jellyman.hmm
-add mod.ini
 add recoded.hmm
+add mod.ini
