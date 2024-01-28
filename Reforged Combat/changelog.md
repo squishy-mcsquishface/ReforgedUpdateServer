@@ -1,3 +1,8 @@
+## Reforged Combat V3.4
+- Added changes to Sumo, Strider, Shark and Spider.
+- Implemented spam prevention for down finisher.
+- Fixed Training Simulator showing the incorrect inputs for attacks.
+  
 ## Reforged Combat V3.333
 - Fixed the game potentially not launching due to code errors.
 
