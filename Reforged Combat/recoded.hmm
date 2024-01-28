@@ -294,10 +294,12 @@ Code "Wild Rush Spam Prevention" by "datsquishyfello"
 		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergyAccele, 3.0f);
 		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergySS, 3.0f);
 		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergyAcceleSS, 3.2f);
+//		Console.WriteLine("DECAY BEGIN")
 		
 		if (timer >= delayTimer)
 		{
 			isDecay = false;
+//			Console.WriteLine("TIME'S UP")
 		}
 	}
 	
@@ -313,6 +315,50 @@ Code "Wild Rush Spam Prevention" by "datsquishyfello"
 		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergyAccele, 9.0f);
 		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergySS, 6.0f);
 		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergyAcceleSS, 7.2f);
+		timer = 0.0f;
+	}
+}
+Code "Downstrike Spam Prevention" by "datsquishyfello"
+//
+	#include "Reflection" noemit
+	
+	#lib "SonicParameters"
+	#lib "Sonic"
+	#lib "Reflection"
+	#lib "Time"
+	
+	static float timer = 0.0f;
+	static float delayTimer = 1.0f;
+	static bool isDecay = false;
+
+//
+{
+	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+	
+	if (SonicParametersInfo.pData == null)
+		return;
+		
+	if (Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateHomingFinish)
+	{	
+		isDecay = true;
+		timer = 0.0f;
+	}
+	if (isDecay)
+	{
+		timer += Time.GetDeltaTime();
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.comboFinishB.damageRate, 0.6f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.comboFinishB.attributes, 0);
+		
+		if (timer >= delayTimer)
+		{
+			isDecay = false;
+		}
+	}
+	
+	if (!isDecay)
+	{
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.comboFinishB.damageRate, 1.05f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.comboFinishB.attributes, 32);
 		timer = 0.0f;
 	}
 }
@@ -357,6 +403,11 @@ Code "Amy Stuff" by "datsquishyfello"
 
     if (kinematics == null)
         return;
+		
+	var pBlackboardBattle = BlackboardBattle.Get();
+
+    if (pBlackboardBattle == null)
+        return;
 
 	Player.State.Redirect<Amy.StateID>(Amy.StateID.StateCyHammer, Amy.StateID.StateAirCyHammer)
 
@@ -374,7 +425,6 @@ Code "Amy Stuff" by "datsquishyfello"
 			{
 				RFL_SET_PARAM(AmyParametersInfo, forwardView.highJump.jumpForce, 23.0f);	
 			}
-
 		//Higher Crit Rate on Charm Attack
 		if (Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.AmyStateCharmAttack || Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.AmyStateCharmAttackFollow)
 		{
@@ -423,7 +473,7 @@ Code "Amy Stuff" by "datsquishyfello"
 		else
 		{
 			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.cyloopQuick.damageRate, 0.5f);
-		}
+		}				
 	}
 }
 Code "Knux Stuff" by "datsquishyfello"
@@ -451,8 +501,7 @@ Code "Knux Stuff" by "datsquishyfello"
         return;
 	
 	int rings = pBlackboardItem->RingCount;
-			
-			
+						
 	if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateRun || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.KnucklesStateDrillBoost)
 	{
 		RFL_SET_PARAM(KnucklesParametersInfo, common.combo.comboTable.root.transitExistTarget[4], KnucklesParameters.Action.KnucklesUppercut);
