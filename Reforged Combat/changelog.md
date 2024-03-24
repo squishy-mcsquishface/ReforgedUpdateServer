@@ -1,3 +1,17 @@
+## Reforged Combat V3.5
+- Finishers can now only be used when close to an enemy.
+- Finishers will no longer cause Sonic to lock on to a different target after hitting.
+- Wild Rush will become disabled for a short time after use, a sound cue will play when it's available to use again.
+- Pressing B as Super Sonic will let you kick forward, this attack is capable of hitting the Titan mulitple times.
+- Fixed Homing Shot not activating as Super Sonic with it's usual input (RT + Y).
+- Removed Wild Rush -> Y input for Homing Shot.
+- Dodging an attack with perfect timing will speed Sonic up for a short time for a swift and powerful counter attack.
+- Sliding without Phantom Rush and Spindashing with Phantom Rush fills the combo meter faster. 
+- Various skills have their slowTime (universal slowdown when the attack is active) decreased to make them require more thought to use.
+- Amy can now cancel out of CyHammer by homing attacking.
+- Dropdash damage, combo meter gain and knockback now dynamically increases with speed. It will also gain cyloop attributes when the speedometer is in the blue, meaning it will break shields and launch Ninjas.
+- When Phantom Rush is active, grinding on rails will now regenerate combo meter, potentially allowing you to continue your combo across the Island.
+
 ## Reforged Combat V3.4
 - Added changes to Sumo, Strider, Shark and Spider.
 - Implemented spam prevention for down finisher.
