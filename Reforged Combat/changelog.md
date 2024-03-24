@@ -5,7 +5,7 @@
 - Pressing B as Super Sonic will let you kick forward, this attack is capable of hitting the Titan mulitple times.
 - Fixed Homing Shot not activating as Super Sonic with it's usual input (RT + Y).
 - Removed Wild Rush -> Y input for Homing Shot.
-- Revamped certain tutorial texts to fit the new mechanics better.
+- Revamped certain tutorial pop-ups to explain new mechanics.
 - Dodging an attack with perfect timing will speed Sonic up for a short time for a swift and powerful counter attack.
 - Sliding without Phantom Rush and Spindashing with Phantom Rush fills the combo meter faster. 
 - Various skills have their slowTime (universal slowdown when the attack is active) decreased to make them require more thought to use.
