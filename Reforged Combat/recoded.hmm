@@ -16,12 +16,14 @@ Code "Combo Table Fixes" by "datsquishyfello"
 	if (SonicParametersInfo.pData == null)
 	return;
 	
-	var pBlackboardBattle = BlackboardBattle.Get();
+	var pGameObject = Player.Status.GetLockOnTarget();
 
-    if (pBlackboardBattle == null)
+    if (pGameObject == null)
         return;
-		
-		if (IS_WORLD_FLAG(IsBattle))
+	
+    bool isLockOnEnemy = GameObject.GetGOC(pGameObject, "GOCHealth") != null;
+	
+		if (isLockOnEnemy)
 		{
 			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitExistTarget[0], SonicParameters.Action.AcceleCombo1);
 			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[0], SonicParameters.Action.AerialAcceleCombo1);				
@@ -32,15 +34,43 @@ Code "Combo Table Fixes" by "datsquishyfello"
 			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[0], SonicParameters.Action.AerialHomingAttack);	
 		}		
 }
-Code "Spin Dash While Sliding During Combat" by "datsquishyfello"
+Code "Fix Spindash after Finisher" by "datsquishyfello"
 //
 	#include "Reflection" noemit
 
     #lib "Sonic"
 	#lib "Reflection"
+//
+{
+	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+	
+	if (SonicParametersInfo.pData == null)
+	return;
+	
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.comboFinishF.ignoreTime, 0);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.comboFinishB.ignoreTime, 0);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.comboFinishL.ignoreTime, 0);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.comboFinishR.ignoreTime, 0);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.acceleComboFinish.ignoreTime, 0);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.acceleComboFinishF.ignoreTime, 0);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.acceleComboFinishB.ignoreTime, 0);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.acceleComboFinishL.ignoreTime, 0);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.acceleComboFinishR.ignoreTime, 0);
+}
+Code "Spin Dash While Sliding During Combat" by "datsquishyfello"
+//
+	#include "Reflection" noemit
+	#import "GOComponents"
+	
+    #lib "Sonic"
+	#lib "Reflection"
 	#lib "SonicParameters"
     #lib "Bitwise"
 	#lib "BlackboardBattle"
+	#lib "BlackboardStatus"
+    #lib "GameObject"
+    #lib "GameManager"
+    #lib "Player"
 	
 //
 {
@@ -49,17 +79,49 @@ Code "Spin Dash While Sliding During Combat" by "datsquishyfello"
 	if (SonicParametersInfo.pData == null)
 	return;
 	
-	var pBlackboardBattle = BlackboardBattle.Get();
-
-    if (pBlackboardBattle == null)
+	var pData = Player.GetPlayerData();
+    if (pData == null)
         return;
-		
-		if (IS_WORLD_FLAG(IsBattle) && Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateSliding)
+
+    var pGOCPlayerEyesight = GameObject.GetGOC<GOCPlayerEyesight>(&pData->GameObject);
+    var pHomingEyesight    = pGOCPlayerEyesight->GetEyesightComponent<HomingEyesight>();
+
+    if (pHomingEyesight == null)
+        return;
+
+    var pTarget = pHomingEyesight->GetPriorityTarget() /* Returns TargetData */;
+    if (pTarget == null)
+        return;
+
+	var pGameObject = Player.Status.GetLockOnTarget();
+
+    if (pGameObject == null)
+        return;
+	
+    bool isLockOnEnemy = GameObject.GetGOC(pGameObject, "GOCHealth") != null;
+	
+	if (Player.State.GetCurrentStateID<Sonic.StateID>() != Sonic.StateID.StateComboWarp && !BlackboardStatus.IsSuper())
+	{
+		if (IS_COMBAT_FLAG(IsSpinDash))
+		{
+		Player.State.Redirect<Sonic.StateID>(Sonic.StateID.StateSonicBoomKick, Sonic.StateID.StateSpinBoostCharge);
+		}
+		else
+		{
+		Player.State.Discard<Sonic.StateID>(Sonic.StateID.StateSonicBoomKick);
+		}
+	}
+	else
+	{
+		Player.State.Restore<Sonic.StateID>(Sonic.StateID.StateSonicBoomKick)
+	}
+	
+		if (isLockOnEnemy && Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateSliding || isLockOnEnemy && pTarget->Distance >= 5.5f)
 		{	
 			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitExistTarget[5], SonicParameters.Action.Root);
 			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[5], SonicParameters.Action.Root);					
 		}	
-		else if (IS_WORLD_FLAG(IsBattle) && Player.Status.IsLockOnCursorVisible() && Player.State.GetCurrentStateID<Sonic.StateID>() != Sonic.StateID.StateSliding)
+		else if (isLockOnEnemy && Player.State.GetCurrentStateID<Sonic.StateID>() != Sonic.StateID.StateSliding || isLockOnEnemy && pTarget->Distance <= 5.5f)
 		{
 			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitExistTarget[5], SonicParameters.Action.ComboFinish);
 			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[5], SonicParameters.Action.ComboFinish);	
@@ -70,12 +132,13 @@ Code "Spin Dash While Sliding During Combat" by "datsquishyfello"
 			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.root.transitInAir[5], SonicParameters.Action.Root);		
 		}
 }
-Code "Super Sonic Changes" by "datsquishyfello"
+Code "Max Level Changes" by "datsquishyfello"
 //
 	#include "Reflection" noemit
 	
 	#lib "SonicParameters"
 	#lib "Reflection"
+	#lib "GameMode"
 	#lib "Sonic"
 	#lib "BlackboardStatus"
 
@@ -89,17 +152,207 @@ Code "Super Sonic Changes" by "datsquishyfello"
 	if (BlackboardStatus.IsSuper())
 	{
 		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.common.offensive.pointMax, 15);
-		RFL_SET_PARAM(SonicParametersInfo, common.cyloop.recoveryQuickCyloopEnergyByTime, 0.8f);	
-		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.afterAirBoost.transitInAir[5], SonicParameters.Action.SonicBoom);
-		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.afterAirBoost.transitExistTarget[5], SonicParameters.Action.SonicBoom);		
-		
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.common.offensive.pointMin, 10);			
+	}
+	else if (GameMode.GetName() == "GameModeBattleRush")
+	{
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.common.offensive.pointMax, 12);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.common.offensive.pointMin, 12);			
 	}
 	else
 	{
 		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.common.offensive.pointMax, 25);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.common.offensive.pointMin, 10);	
+	}
+}
+Code "Super Sonic Changes" by "datsquishyfello"
+//
+	#include "Reflection" noemit
+	
+	#lib "SonicParameters"
+	#lib "Reflection"
+	#lib "Sonic"
+	#lib "BlackboardStatus"
+	
+    static float delayTimer = 0.33f;
+    static float startTimer = 0.0f;	
+
+//
+{
+    var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+	var pBlackboardItem = BlackboardItem.Get();
+	
+	if (SonicParametersInfo.pData == null || pBlackboardItem == null)
+		return;
+		
+	int maxRings = pBlackboardItem->RingCapacity;
+	int rings = pBlackboardItem->RingCount;
+	
+	if (BlackboardStatus.IsSuper())
+	{
+//		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.parry.maxRecieveTime, 0.44f);
+		RFL_SET_PARAM(SonicParametersInfo, common.cyloop.recoveryQuickCyloopEnergyByTime, 0.8f);	
+		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.afterAirBoost.transitInAir[5], SonicParameters.Action.SonicBoom);
+		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.afterAirBoost.transitExistTarget[5], SonicParameters.Action.SonicBoom);
+		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.stomping.transitExistTarget[5], SonicParameters.Action.SpinSlash);
+		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.chargeAttack.transitExistTarget[5], SonicParameters.Action.Stomping);
+		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.chargeAttack.transitInAir[5], SonicParameters.Action.Stomping);
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.sliding.minSpeed, 60.0f);
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.sliding.gravitySize, 0.0f);
+	}
+	else
+	{
+//		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.parry.maxRecieveTime, 0.469f);
 		RFL_SET_PARAM(SonicParametersInfo, common.cyloop.recoveryQuickCyloopEnergyByTime, 1.2f);
 		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.afterAirBoost.transitInAir[5], SonicParameters.Action.Root);
-		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.afterAirBoost.transitExistTarget[5], SonicParameters.Action.Root);				
+		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.afterAirBoost.transitExistTarget[5], SonicParameters.Action.Root);
+		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.stomping.transitExistTarget[5], SonicParameters.Action.ComboFinish);
+		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.chargeAttack.transitExistTarget[5], SonicParameters.Action.ComboFinish);
+		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.chargeAttack.transitInAir[5], SonicParameters.Action.ComboFinish);		
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.sliding.minSpeed, 25.0f);
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.sliding.gravitySize, 60.0f);		
+	}
+}
+Code "Super Sonic: Slide" by "datsquishyfello"
+//
+	#include "Reflection" noemit
+	
+	#lib "SonicParameters"
+	#lib "Reflection"
+	#lib "Sonic"
+	#lib "Time"
+	#lib "BlackboardBattle"
+	#lib "BlackboardStatus"
+    #lib "Player"
+	
+	static float attackDelay = 0.3f;
+    static float timer = 0.0f;
+	static float delayTimer = 0.15f;
+	static float startTimer = 0.0f;  
+	static bool isCemt = false;
+
+//
+{
+	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+	
+	if (SonicParametersInfo.pData == null)
+	return;
+
+	if (BlackboardStatus.IsSuper())
+	{
+		if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateHomingFinished)
+		{
+			timer += Time.GetDeltaTime();
+			
+			if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateHomingFinished && Player.Input.IsPressed(Player.InputActionType.PlayerStomping) && timer >= attackDelay)
+			{
+				Player.State.SetState<Sonic.StateID>(Sonic.StateID.StateSliding);
+			}
+		}
+		else
+		{
+			timer = 0.0f;
+		}
+		
+		if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateFly && Player.Input.IsPressed(Player.InputActionType.PlayerStomping))
+		{
+			Player.State.SetState<Sonic.StateID>(Sonic.StateID.StateSliding);
+		}
+		if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateSliding)
+		{
+			isCemt = true;
+			Player.Animation.SetAnimation("COMBO_PURSUIT_LOOP");
+			startTimer += Time.GetDeltaTime();
+
+            if (startTimer >= delayTimer && isCemt)
+            {
+				Player.Effect.PlayEffect("slide", "ec_ss_skill_psycho_aura01_linepar01");
+                startTimer = 0.0f;
+            }    
+		}
+		else
+		{
+			isCemt = false;
+			Player.Effect.StopEffect("slide");
+			startTimer = 0.0f
+		}
+	}
+}
+Code "Super Sonic: Homing Shot on RT + Y" by "datsquishyfello"
+//
+	#include "Reflection" noemit
+	#import "GOComponents"
+	
+	#lib "SonicParameters"
+	#lib "Reflection"
+	#lib "Sonic"
+	#lib "Time"
+	#lib "BlackboardBattle"
+	#lib "BlackboardStatus"
+    #lib "GameObject"
+    #lib "GameManager"
+    #lib "Player"
+	
+	static float hsAttackDelay = 0.25f;
+    static float hsTimer = 0.0f;	
+//
+{
+	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+	
+	if (SonicParametersInfo.pData == null)
+	return;
+	
+	var pBlackboardBattle = BlackboardBattle.Get();
+
+    if (pBlackboardBattle == null)
+        return;
+		
+	var pData = Player.GetPlayerData();
+    if (pData == null)
+        return;
+
+    var pGOCPlayerEyesight = GameObject.GetGOC<GOCPlayerEyesight>(&pData->GameObject);
+    var pHomingEyesight    = pGOCPlayerEyesight->GetEyesightComponent<HomingEyesight>();
+
+    if (pHomingEyesight == null)
+        return;
+
+    var pTarget = pHomingEyesight->GetPriorityTarget() /* Returns TargetData */;
+    if (pTarget == null)
+        return;
+
+	var pGameObject = Player.Status.GetLockOnTarget();
+
+    if (pGameObject == null)
+        return;
+	
+    bool isLockOnEnemy = GameObject.GetGOC(pGameObject, "GOCHealth") != null;
+	
+	if (BlackboardStatus.IsSuper())
+	{
+		if (IS_COMBAT_FLAG(IsHomingShot))
+		{
+			if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateFly && Player.Input.IsDown(Player.InputActionType.PlayerBoost) || Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateFlyLocal && Player.Input.IsDown(Player.InputActionType.PlayerBoost))
+			{
+				hsTimer += Time.GetDeltaTime();
+			
+				if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateFly && Player.Input.IsDown(Player.InputActionType.PlayerBoost) && Player.Input.IsPressed(Player.InputActionType.PlayerCyloop) && hsTimer <= hsAttackDelay && isLockOnEnemy && pBlackboardBattle->QuickCyloopAmount == 60.0f
+				||
+				Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateFly && Player.Input.IsDown(Player.InputActionType.PlayerBoost) && Player.Input.IsPressed(Player.InputActionType.PlayerCyloop) && hsTimer <= hsAttackDelay && isLockOnEnemy && pBlackboardBattle->QuickCyloopAmount == 120.0f
+				||
+				Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateFlyLocal && Player.Input.IsDown(Player.InputActionType.PlayerBoost) && Player.Input.IsPressed(Player.InputActionType.PlayerCyloop) && hsTimer <= hsAttackDelay && isLockOnEnemy && pBlackboardBattle->QuickCyloopAmount == 60.0f
+				||
+				Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateFlyLocal && Player.Input.IsDown(Player.InputActionType.PlayerBoost) && Player.Input.IsPressed(Player.InputActionType.PlayerCyloop) && hsTimer <= hsAttackDelay && isLockOnEnemy && pBlackboardBattle->QuickCyloopAmount == 120.0f)
+				{
+					Player.State.SetState<Sonic.StateID>(Sonic.StateID.StateHomingShot);
+					pBlackboardBattle->QuickCyloopAmount -= 60.0f
+				}
+			}
+			else
+			{
+				hsTimer = 0.0f;
+			}
+		}
 	}
 }
 Code "Spin Dash Vs Drop Dash Damage Tweak" by "datsquishyfello"
@@ -126,9 +379,8 @@ Code "Spin Dash Vs Drop Dash Damage Tweak" by "datsquishyfello"
 	else
 	{
 		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.damageRate, 0.96f);
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.velocity.Y, 7.000001f);		
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.velocity.Y, 5.000001f);		
 	}
-	
 }
 Code "Stomp Skill Vs Manual Stomp Damage Tweak" by "datsquishyfello"
 //
@@ -149,10 +401,12 @@ Code "Stomp Skill Vs Manual Stomp Damage Tweak" by "datsquishyfello"
 	if (Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateStomping)
 	{	
 		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.stomping.damageRate, 0.7f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.stomping.addComboValueAccele, 13.75f);
 	}
 	else
 	{
 		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.stomping.damageRate, 0.6f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.stomping.addComboValueAccele, 7.75f);
 	}
 }
 Code "Cyloop Item Drop Nerf in Battle" by "datsquishyfello"
@@ -262,11 +516,13 @@ Code "Wild Rush Spam Prevention" by "datsquishyfello"
 	
 	#lib "SonicParameters"
 	#lib "Sonic"
+	#lib "BlackboardStatus"
 	#lib "Reflection"
 	#lib "Time"
 	
 	static float timer = 0.0f;
-	static float delayTimer = 2.2f;
+	static float delayTimerSuper = 5.0f;	
+	static float delayTimer = 6.0f;
 	static bool isDecay = false;
 
 //
@@ -284,41 +540,35 @@ Code "Wild Rush Spam Prevention" by "datsquishyfello"
 	if (isDecay)
 	{
 		timer += Time.GetDeltaTime();
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.damageRate, 0.4f);
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.damageRateSS, 8.0f);
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addComboValue, 4.0f);
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addComboValueAccele, 4.0f);
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addComboValueSS, 4.1f);
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addComboValueAcceleSS, 5.5f);
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergy, 3.0f);
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergyAccele, 3.0f);
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergySS, 3.0f);
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergyAcceleSS, 3.2f);
-//		Console.WriteLine("DECAY BEGIN")
+		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.avoid.transitExistTarget[5], SonicParameters.Action.Root);
+		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.avoid.transitInAir[5], SonicParameters.Action.Root);		
 		
-		if (timer >= delayTimer)
+		if (BlackboardStatus.IsSuper())
 		{
-			isDecay = false;
-//			Console.WriteLine("TIME'S UP")
+			if (timer >= delayTimerSuper)
+			{
+				isDecay = false;
+				Player.Sound.PlaySound("sn_skateboard_change");
+			}
+		}
+		else
+		{
+			if (timer >= delayTimer)
+			{
+				isDecay = false;
+				Player.Sound.PlaySound("sn_skateboard_change");
+			}
 		}
 	}
 	
 	if (!isDecay)
 	{
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.damageRate, 0.99f);
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.damageRateSS, 20.0f);
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addComboValue, 12.0f);
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addComboValueAccele, 12.0f);
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addComboValueSS, 12.2f);
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addComboValueAcceleSS, 15.0f);
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergy, 9.0f);
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergyAccele, 9.0f);
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergySS, 6.0f);
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.crasher.addQuickCyloopEnergyAcceleSS, 7.2f);
+		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.avoid.transitExistTarget[5], SonicParameters.Action.Crasher);
+		RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.avoid.transitInAir[5], SonicParameters.Action.Crasher);	
 		timer = 0.0f;
 	}
 }
-Code "Downstrike Spam Prevention" by "datsquishyfello"
+Code "Finisher Spam Prevention" by "datsquishyfello"
 //
 	#include "Reflection" noemit
 	
@@ -346,7 +596,9 @@ Code "Downstrike Spam Prevention" by "datsquishyfello"
 	if (isDecay)
 	{
 		timer += Time.GetDeltaTime();
-		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.comboFinishB.damageRate, 0.6f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.comboFinishB.damageRate, 0.6f);		
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.comboFinishL.damageRate, 1.05f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.comboFinishR.damageRate, 1.05f);
 		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.comboFinishB.attributes, 0);
 		
 		if (timer >= delayTimer)
@@ -358,6 +610,8 @@ Code "Downstrike Spam Prevention" by "datsquishyfello"
 	if (!isDecay)
 	{
 		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.comboFinishB.damageRate, 1.05f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.comboFinishL.damageRate, 1.2f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.comboFinishR.damageRate, 1.2f);
 		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.comboFinishB.attributes, 32);
 		timer = 0.0f;
 	}
@@ -376,9 +630,117 @@ Code "Less Crappy Bounce Jump" by "datsquishyfello"
 		Player.State.SetState<Sonic.StateID>(Sonic.StateID.StateHomingAttack);
 	}
 	
-	if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateBounceJump && Player.Input.IsPressed(Player.InputActionType.PlayerLeftStep) || Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateBounceJump && Player.Input.IsPressed(Player.InputActionType.PlayerRightStep))
+	if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateBounceJump && Player.Input.IsPressed(Player.InputActionType.PlayerLeftStep) || Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateBounceJump && Player.Input.IsPressed(Player.InputActionType.PlayerRightStep)
+	||
+	Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateSpinAttack && Player.Input.IsPressed(Player.InputActionType.PlayerLeftStep) || Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateSpinAttack && Player.Input.IsPressed(Player.InputActionType.PlayerRightStep))
 	{	
 		Player.State.SetState<Sonic.StateID>(Sonic.StateID.StateFall);
+	}
+}
+Code "Perfect Dodge Speed Buff" by "datsquishyfello"
+//
+    #include "Reflection" noemit
+
+    #lib "Reflection"
+    #lib "GameHitStopParameter"
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Sonic)
+        return;
+
+    var GameHitStopParameterInfo = Reflection.GetDataInfo<GameHitStopParameter.Root>("hitstop");
+
+    if (GameHitStopParameterInfo.pData == null)
+        return;
+    
+    {    
+        RFL_SET_PARAM(GameHitStopParameterInfo, data[8].scale, 1.33f);
+        RFL_SET_PARAM(GameHitStopParameterInfo, data[8].time, 1.5f);
+        RFL_SET_PARAM(GameHitStopParameterInfo, data[8].layerPlayer, true);
+        RFL_SET_PARAM(GameHitStopParameterInfo, data[8].layerEnemy, false);
+        RFL_SET_PARAM(GameHitStopParameterInfo, data[8].layerDamagedEnemy, false);
+    }
+}
+Code "Dynamic Drop Dash Damage" by "DatSquishyFello" does "Increases rolling damage based on Sonic's current speed."
+//
+	#include "Reflection" noemit
+
+    #lib "Sonic"
+	#lib "Reflection"
+	
+	#load "System.Numerics.dll"
+
+    using System;
+    using System.Numerics;
+//
+
+{
+    var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+	
+	if (SonicParametersInfo.pData == null)
+	return;
+	
+    var kinematics = Player.Kinematics.Get();
+
+    if (kinematics == null)
+        return;	
+
+	float speed = Player.Kinematics.GetHorizontalMagnitude();
+
+	if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateDropDash)
+	{
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.damageRate, speed/36.0f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.velocity.Z, speed)/2.5f;
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.addComboValue, speed/2.5f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.addComboValueAccele, speed/2.0f);
+		
+		if (speed >= 50)
+		{
+			RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.attributes, 164);
+			
+		}
+		else
+		{
+			RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.attributes, 32);
+		}
+	}
+	else
+	{
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.damageRate, 0.725f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.velocity.Z, 16.0f);	
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.addComboValue, 6.0f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.addComboValueAccele, 16f);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.attributes, 32);
+	}
+}
+Code "Grinding Upkeeps Phantom Rush" by "DatSquishyFello"
+//
+	#include "Reflection" noemit
+
+    #lib "Sonic"
+	#lib "Reflection"
+//
+
+{
+    var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+	
+	if (SonicParametersInfo.pData == null)
+	return;
+	
+    var kinematics = Player.Kinematics.Get();
+
+    if (kinematics == null)
+        return;	
+
+	float speed = Player.Kinematics.GetHorizontalMagnitude();
+
+	if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateGrind)
+	{
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.acceleMode.declineSpeedAccele, speed/-4.75f);
+	}
+	else
+	{
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.acceleMode.declineSpeedAccele, 20.5f);
 	}
 }
 Code "Amy Stuff" by "datsquishyfello"
@@ -392,9 +754,13 @@ Code "Amy Stuff" by "datsquishyfello"
     #lib "Bitwise"
 	#lib "BlackboardBattle"
     #lib "BlackboardStatus"
+	#lib "Time"
+	
+	static float delayTimer = 0.75f;
+    static float timer = 0.0f;
 
 //
-{		
+{
 	var AmyParametersInfo = Reflection.GetDataInfo<AmyParameters.Root>("amy_common");
 	if (AmyParametersInfo.pData == null)
 		return;
@@ -425,6 +791,10 @@ Code "Amy Stuff" by "datsquishyfello"
 			{
 				RFL_SET_PARAM(AmyParametersInfo, forwardView.highJump.jumpForce, 23.0f);	
 			}
+//		if (Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.AmyStateStompingDown && Player.Input.IsPressed(Player.InputActionType.PlayerCyloop))
+//		{
+//			Player.State.SetState<Amy.StateID>(Amy.StateID.StateAirCyHammer);
+//		}
 		//Higher Crit Rate on Charm Attack
 		if (Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.AmyStateCharmAttack || Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.AmyStateCharmAttackFollow)
 		{
@@ -473,7 +843,33 @@ Code "Amy Stuff" by "datsquishyfello"
 		else
 		{
 			RFL_SET_PARAM(AmyParametersInfo, common.commonPackage.attack.cyloopQuick.damageRate, 0.5f);
-		}				
+		}
+		//Faster CyHammer Cancel
+		if (Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StateCyHammer)
+		{
+			timer += Time.GetDeltaTime();
+		
+			if (Player.Input.IsPressed(Player.InputActionType.PlayerAttack) && Player.Status.IsLockOnCursorVisible() && timer >= delayTimer)
+			{
+				Player.State.SetState<Amy.StateID>(Amy.StateID.StateHomingAttack);
+			}
+		}
+		else if (Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StateAirCyHammer)
+		{
+			if (Player.Input.IsPressed(Player.InputActionType.PlayerAttack) && Player.Status.IsLockOnCursorVisible())
+				{
+					Player.State.SetState<Amy.StateID>(Amy.StateID.StateHomingAttack);
+				}
+		}
+		else
+		{
+			timer = 0.0f;
+		}
+		
+//		if (Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.AmyStateTarotRollingFall)
+//		{
+//			kinematics->Position.Y += 0.1f;
+//		}
 	}
 }
 Code "Knux Stuff" by "datsquishyfello"
@@ -501,7 +897,8 @@ Code "Knux Stuff" by "datsquishyfello"
         return;
 	
 	int rings = pBlackboardItem->RingCount;
-						
+			
+			
 	if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateRun || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.KnucklesStateDrillBoost)
 	{
 		RFL_SET_PARAM(KnucklesParametersInfo, common.combo.comboTable.root.transitExistTarget[4], KnucklesParameters.Action.KnucklesUppercut);
@@ -614,6 +1011,11 @@ Code "Knux Stuff" by "datsquishyfello"
 			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinAttack.velocityKeepTime, 0.0f);
 			RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinAttack.damageRate, 0.1f);
 		}
+		
+//		if (Player.State.GetPreviousStateID<Knuckles.StateID>() == Knuckles.StateID.KnucklesStateUppercut && Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.KnucklesStateUppercut))
+//		{
+//			Player.State.SetState<Knuckles.StateID>(Knuckles.StateID.StateGliding);			
+//		}
 	}		
 }
 Code "Tails Stuff" by "datsquishyfello"
@@ -638,6 +1040,7 @@ Code "Tails Stuff" by "datsquishyfello"
 		if (Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateRun && Player.Input.IsPressed(Player.InputActionType.PlayerStomping))
 		{
 			Player.State.SetState<Tails.StateID>(Tails.StateID.TailsStateStompingDown);
+//			Player.State.SetState<Tails.StateID>(Tails.StateID.StateSliding);
 		}
 		
 		if (Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateSpinBoostCharge)
@@ -670,5 +1073,109 @@ Code "Tails Stuff" by "datsquishyfello"
 		{
 			Player.State.SetState<Tails.StateID>(Tails.StateID.StateHomingAttack);		
 		}
+		
+		//Sliding Stuff
+//		if (Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateSliding)
+//		{
+//			Player.Animation.SetAnimation("JUMP_BALL");
+//		}
+//		if (Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateSliding && Player.Input.IsPressed(Player.InputActionType.PlayerAttack))
+//		{
+//			Player.State.SetState<Tails.StateID>(Tails.StateID.StateRun);		
+//		}
 	}
+}
+Library "GameHitStopParameter"
+{
+    #load "System.Numerics.dll"
+
+    using System.Numerics;
+    using System.Runtime.InteropServices;
+
+    [StructLayout(LayoutKind.Explicit, Size = 8)]
+    public struct UnmanagedString
+    {
+        [FieldOffset(0)] public long pValue;
+
+        public string Value
+        {
+            get
+            {
+                if (pValue == 0)
+                    return string.Empty;
+
+                return Marshal.PtrToStringAnsi((nint)pValue);
+            }
+
+            set => pValue = (long)Marshal.StringToHGlobalAnsi(value);
+        }
+
+        public UnmanagedString(string in_value)
+        {
+            Value = in_value;
+        }
+
+        public static implicit operator UnmanagedString(string in_value)
+        {
+            return new UnmanagedString(in_value);
+        }
+
+        public static bool operator ==(UnmanagedString in_left, string in_right)
+        {
+            return in_left.Value == in_right;
+        }
+
+        public static bool operator !=(UnmanagedString in_left, string in_right)
+        {
+            return !(in_left == in_right);
+        }
+
+        public override bool Equals(object in_obj)
+        {
+            if (in_obj is string str)
+                return Value == str;
+
+            return base.Equals(in_obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return Value;
+        }
+    }
+
+    [StructLayout(LayoutKind.Explicit, Size = 0x28)]
+    public struct GameHitStopParameterData
+    {
+        [FieldOffset(0x00)] public UnmanagedString name;
+        [FieldOffset(0x10)] public float scale;
+        [FieldOffset(0x14)] public float time;
+        [FieldOffset(0x18)] public float easeOutTime;
+        [FieldOffset(0x1C)] public float delayTime;
+        [FieldOffset(0x20)] public bool layerPlayer;
+        [FieldOffset(0x21)] public bool layerEnemy;
+        [FieldOffset(0x22)] public bool layerDamagedEnemy;
+        [FieldOffset(0x23)] public bool layerCamera;
+        [FieldOffset(0x24)] public bool layerOthers;
+    }
+
+    [StructLayout(LayoutKind.Explicit, Size = 0xA00)]
+    public struct Root
+    {
+        [FieldOffset(0x00)] public unsafe fixed byte /* GameHitStopParameterData[64] */ _data[2560];
+
+        public unsafe GameHitStopParameterData* data
+        {
+            get
+            {
+                fixed (byte* p_data = _data)
+                    return (GameHitStopParameterData*)p_data;
+            }
+        }
+    }
 }
