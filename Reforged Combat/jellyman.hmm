@@ -18,10 +18,12 @@ Code "Fixed Platforming Soldiers" by "DatSquishyFello"
 	if (LevelInfo.GetCurrentStageID() == "w1r03")
 	{
 		RFL_SET_PARAM(EnemyJellymanConfigInfo, levelParams[0].common.maxHealthPoint, 72);	
+		RFL_SET_PARAM(EnemyJellymanConfigInfo, levelParams[0].common.exp, 75);	
 	}
 	else
 	{
-		RFL_SET_PARAM(EnemyJellymanConfigInfo, levelParams[0].common.maxHealthPoint, 2);				
+		RFL_SET_PARAM(EnemyJellymanConfigInfo, levelParams[0].common.maxHealthPoint, 2);
+		RFL_SET_PARAM(EnemyJellymanConfigInfo, levelParams[0].common.exp, 10);			
 	}
 }
 
@@ -318,7 +320,7 @@ Library "EnemyJellymanConfig"
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 0x1CF0)]
-    public struct Root
+    public struct EnemyJellymanConfig
     {
         [FieldOffset(0x00)] public EnemyCommonConfig commonParams;
         [FieldOffset(0x1670)] public unsafe fixed byte /* EnemyLevelConfig[8] */ _levelParams[640];
