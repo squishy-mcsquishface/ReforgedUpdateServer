@@ -1,3 +1,18 @@
+## Reforged Combat V3.6
+- Spin Slash can now be activated by pressing LT after a stomp if Phantom Rush is active.
+- Shortened Wild Rush recharge time (6sec -> 5.5sec).
+- Fixed a bug where Ninjas would levitate in the air after being launched down and attacked.
+- Fixed Ninjas taking double damage from Sonic Boom.
+- Made Soldiers across all islands get up faster after being knocked down and less obnoxious to fight overall.
+- Sonic's base moveset builds Phantom Rush faster, letting you make use of it more in the early game.
+- Added changes to Hopper, Jellyfish and Eagle.
+- Overhauled skill point drops from enemies, enemies that are harder to beat grant more skill points and drop rates increase on later islands.
+- Implemented damage staling on Pursuit Kick.
+- Side and Down finishers no longer launch grounded enemies, use slide, Cyloop or a stronger finisher to knock them off their feet.
+- Added new custom cameras for Super Sonic's Cyloop Attacks (Make sure Dramatic Skill Camera is on if you want to use).
+- Made it harder to dodge out of damage.
+- A whoooole lot of other very small changes that I don't remember making.
+
 ## Reforged Combat V3.5
 - Finishers can now only be used when close to an enemy.
 - Finishers will no longer cause Sonic to lock on to a different target after hitting.
